@@ -108,18 +108,14 @@ void BatteryObserver::energyRecordTaskFunction(const bool& join)
 
 void BatteryObserver::decreaseEnergyLevel(const float energy)
 {
-    mEnergy += energy;
-    if (mEnergy <= 0.0) {
-        mEnergy = 0;
-    }
+  mEnergie = std::max<float>(mEnergy + energy, 0f);
 }
 
 void BatteryObserver::increaseEnergyLevel(const float energy)
 {
+  //omit overflow with mEnergy = std::min<float>(mEnergy + energy, ABSOLUTE_MAX_ENERGY);???
     mEnergy += energy;
-    if (mEnergy > mMaxEnergy) {
-        mMaxEnergy = mEnergy;
-    }
+    mMaxEnergy = std::max<float>(mMaxEnergy, mEnergy);
 }
 
 float BatteryObserver::getEnergyLevelInPercent(void) const
@@ -127,11 +123,13 @@ float BatteryObserver::getEnergyLevelInPercent(void) const
     return (mEnergy * 100) / mMaxEnergy;
 }
 
+// git grep getEnergy shows: only used by unittest -> remove and use friend?
 float BatteryObserver::getEnergy(void) const
 {
     return mEnergy;
 }
 
+// git grep getMaxEnergy shows: only used by unittest -> remove and use friend?
 float BatteryObserver::getMaxEnergy(void) const
 {
     return mMaxEnergy;
